@@ -1,36 +1,65 @@
 const connection = require('../db/database');
-
+const inquirer = require('inquirer'); // inquirer
 
 viewDepartments = () => {
-    connection.query('SELECT * FROM department', function(err, res) {
-      if (err) throw err;
-      // Log all results of the SELECT statement
-      console.table(res);
-      connection.end();
-    });
-  };
+    connection.promise().query('SELECT * FROM department')
+        .then(([rows, fields]) => {
+            console.table(rows);
+        })
+        .catch(console.log)
+        .then(() => connection.end());
+};
 
-  viewRoles = () => {
-    connection.query('SELECT * FROM role', function(err, res) {
-      if (err) throw err;
-      // Log all results of the SELECT statement
-      console.table(res);
-      connection.end();
-    });
-  };
+viewRoles = () => {
+    connection.promise().query('SELECT * FROM role')
+        .then(([rows, fields]) => {
+            console.table(rows);
+        })
+        .catch(console.log)
+        .then(() => connection.end());
+};
 
-  viewEmployees = () => {
+viewEmployees = () => {
+    connection.promise().query('SELECT employee.id,first_name,last_name,title,department_id,salary,manager_id FROM employee INNER JOIN role ON role.id = role_id')
+        .then(([rows, fields]) => {
+            console.table(rows);
+        })
+        .catch(console.log)
+        .then(() => connection.end());
+};
 
-    connection.query('SELECT employee.id,first_name,last_name,title,department_id,salary,manager_id FROM employee INNER JOIN role ON role.id = role_id', function(err, res) {
-      if (err) throw err;
-      // Log all results of the SELECT statement
-      console.table(res);
-      connection.end();
-    });
-  }; 
+addDepartment = () => {
+    inquirer;
+    return inquirer.prompt([
+        {
+            type: 'input',
+            name: 'department_info',
+            message: 'Provide department name',
+            validate: nameInput => {
+                if (nameInput) {
+                    return true;
+                } else {
+                    console.log('Please provide department name');
+                    return false;
+                }
+            },
+        }
+    ])
+    .then(deptName => {
+        console.log(deptName.department_info);
+        connection.promise().query('INSERT INTO department SET ?',{"id": 15, "name": deptName.department_info})
+        .then(([rows, fields]) => {
+            console.table(rows);
+        })
+        .catch(console.log)
+        .then(() => connection.end());
+      });
+  
+};
 
-  module.exports = {
-   viewDepartments,
-   viewRoles,
-   viewEmployees
+module.exports = {
+    viewDepartments,
+    viewRoles,
+    viewEmployees,
+    addDepartment
 };

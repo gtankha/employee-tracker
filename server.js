@@ -6,7 +6,7 @@ const inquirer = require('inquirer'); // inquirer
 // const fs = require('fs'); // file system functions
 // const validator = require("email-validator"); // checks for valid email address
 // const validUrl = require('valid-url'); // checks for a valid URL
-const { viewDepartments, viewRoles, viewEmployees } = require('./utils/queryCenter');
+const { viewDepartments, viewRoles, viewEmployees, addDepartment } = require('./utils/queryCenter');
 
 inquirer;
 // array of questions for user
@@ -34,6 +34,9 @@ function init() {
                     break;
                 case 'View all employees':
                     viewEmployees();
+                    break;
+                case 'Add a department':
+                    addDepartment();
                     break;
             }
         }
