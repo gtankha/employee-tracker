@@ -49,6 +49,8 @@
   ## 7. Questions
   
   GitHub Username: gtankha
+
+  Walkthrough Video: 
   
   In case of any questions, please reach out to the following contact email: gtankha@gmail.com
 
