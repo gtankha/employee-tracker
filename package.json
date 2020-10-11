@@ -6,7 +6,9 @@
   "dependencies": {
     "console.table": "^0.10.0",
     "inquirer": "^7.3.3",
-    "mysql2": "^2.2.5"
+    "inquirer-recursive": "0.0.6",
+    "mysql2": "^2.2.5",
+    "random-int": "^2.0.1"
   },
   "devDependencies": {},
   "scripts": {

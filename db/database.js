@@ -1,5 +1,5 @@
 // get the client
-const { connect } = require('http2');
+
 const mysql = require('mysql2');
 
 // create the connection to database
