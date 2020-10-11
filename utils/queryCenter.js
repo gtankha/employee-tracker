@@ -1,35 +1,44 @@
 const connection = require('../db/database');
 const inquirer = require('inquirer'); // inquirer
-const randomInt = require('random-int'); // random integer generator
+
+//-------------------------------------------VIEW DEPARTMENTS---------------------------------------//
 
 viewDepartments = () => {
-    connection.promise().query('SELECT * FROM department')
+    const { init } = require('../server');
+    connection.promise().query('SELECT * FROM department ORDER BY id ASC')
         .then(([rows, fields]) => {
             console.table(rows);
+            init();
         })
         .catch(console.log)
-      //  .then(() => connection.end());
 };
 
+//-------------------------------------------VIEW ROLES---------------------------------------//
 viewRoles = () => {
-    connection.promise().query('SELECT * FROM role')
+    const { init } = require('../server');
+    connection.promise().query('SELECT * FROM role ORDER BY id ASC')
         .then(([rows, fields]) => {
             console.table(rows);
+            init();
         })
         .catch(console.log)
-      //  .then(() => connection.end());
 };
+
+//-------------------------------------------VIEW EMPLOYEES--------------------------------------//
 
 viewEmployees = () => {
-    connection.promise().query('SELECT employee.id,first_name,last_name,title,department_id,salary,manager_id FROM employee INNER JOIN role ON role.id = role_id')
+    const { init } = require('../server');
+    connection.promise().query('SELECT employee.id,first_name,last_name,title,department_id,salary,manager_id FROM employee INNER JOIN role ON role.id = role_id ORDER BY id ASC')
         .then(([rows, fields]) => {
             console.table(rows);
+            init();
         })
         .catch(console.log)
-    //    .then(() => connection.end());
 };
 
+//-------------------------------------------ADD A NEW DEPARTMENT---------------------------------------//
 addDepartment = () => {
+    const { init } = require('../server');
     inquirer;
     return inquirer.prompt([
         {
@@ -47,33 +56,32 @@ addDepartment = () => {
         }
     ])
         .then(deptName => {
-            console.log(deptName.department_info);
             connection.promise().query('INSERT INTO department SET ?', { "name": deptName.department_info })
                 .then(([rows, fields]) => {
-                    console.table(rows);
-                    console.log(rows.affectedRows);
+                    console.log(rows.affectedRows + ' department added!\n');
+                    init();
                 })
                 .catch(err => {
                     console.log(err.code);
 
                 })
-          //      .then(() => connection.end());
         });
 
 };
 
+//-------------------------------------------ADD A NEW ROLE--------------------------------------//
 
 addRole = () => {
+    const { init } = require('../server');
     let arrayRes = [];
     var resId;
 
+// get department names
     connection.query('SELECT name FROM department', function (err, res) {
         if (err) throw err;
         res.forEach(element => arrayRes.push(element.name))
-        console.log(arrayRes);
-        // connection.end();
     });
-
+// capture role name, salary and department
     inquirer;
     return inquirer.prompt([
         {
@@ -111,37 +119,35 @@ addRole = () => {
 
     ])
         .then(dept => {
-            console.log("dddee: " + dept.department);
             connection.promise().query('SELECT id FROM department WHERE ?', { name: dept.department })
                 .then(([rows, fields]) => {
                     resId = rows[0].id;
-                    console.log(resId);
-                    console.log(rows.affectedRows);
-                    console.log("1 " + resId);
+                    return (resId)
                 })
                 .catch(err => {
                     console.log(err);
 
                 })
-                .then(() => {
-                    connection.promise().query('INSERT INTO role SET ?', { "title": dept.title, "salary": dept.salary, "department_id": resId })
+                .then((Id) => {
+                    connection.promise().query('INSERT INTO role SET ?', { "title": dept.title, "salary": dept.salary, "department_id": Id })
                         .then(([rows, fields]) => {
-                            console.table(rows);
-                            console.log(rows.affectedRows);
+                            console.log(rows.affectedRows + ' role added !\n');
+                            init();
                         })
                         .catch(err => {
                             console.log(err);
 
                         })
-                 //       .then(() => connection.end());
                 })
 
         });
 
 };
 
+//-------------------------------------------Add Employee---------------------------------------//
 
 addEmployee = () => {
+    const { init } = require('../server');
     let arrayFirst = [];
     let arrayLast = [];
     let arrayRole = [];
@@ -149,24 +155,18 @@ addEmployee = () => {
     var roleID;
     var managerID;
 
+    // capture all employee names for selection in inquire
     connection.query('SELECT first_name,last_name FROM employee', function (err, res) {
         if (err) throw err;
         res.forEach(element => arrayFirst.push(element.first_name));
         res.forEach(element => arrayLast.push(element.last_name));
         res.forEach(element => arrayCombined.push(element.first_name + ' ' + element.last_name));
         arrayCombined.push('No Manager');
-
-        console.log(arrayFirst);
-        console.log(arrayLast);
-        console.log(arrayCombined);
-
-        // connection.end();
     });
+    //capture role titles for selection in inquire
     connection.query('SELECT title FROM role', function (err, res) {
         if (err) throw err;
         res.forEach(element => arrayRole.push(element.title))
-        console.log(arrayRole);
-        // connection.end();
     });
 
     inquirer;
@@ -212,76 +212,75 @@ addEmployee = () => {
 
     ])
         .then(choice => {
-            console.log("dddee: " + choice);
+            // get the role id based on selection
             connection.promise().query('SELECT id FROM role WHERE ?', { "title": choice.role })
                 .then(([rows, fields]) => {
                     roleID = rows[0].id;
-                    console.log("role ID  " + roleID);
+                    return (roleID);
                 })
                 .catch(err => {
                     console.log(err);
 
                 })
 
-                .then(() => {
+                .then((id) => {
 
                     let choiceNew = choice.manager;
                     let choiceNewArray = choiceNew.split(' ');
-                    console.log(choiceNew);
-                    console.log(choiceNewArray);
-
-                    
+                    // get manager's employee id
                     connection.promise().query('SELECT id FROM employee WHERE first_name = ? AND last_name = ?', [choiceNewArray[0], choiceNewArray[1]])
                         .then(([rows, fields]) => {
                             managerID = rows[0].id;
-                            console.log("manager  id: " + managerID);
+                            return ([id, managerID]);
                         })
                         .catch(err => {
                             managerID = null;
+                            return ([id, managerID]);
 
                         })
-                        .then(() => {
-                            console.log("role B:  " + roleID + "  manager B:   " + managerID);
+                        .then(([rid, mid]) => {
 
-                            connection.promise().query('INSERT INTO employee SET ?', { "first_name": choice.first_name, "last_name": choice.last_name, "role_id": roleID, "manager_id": managerID })
+                            // insert the first name, last name, role id and manager id to the employee
+                            connection.promise().query('INSERT INTO employee SET ?', { "first_name": choice.first_name, "last_name": choice.last_name, "role_id": rid, "manager_id": mid })
                                 .then(([rows, fields]) => {
-                                    console.log("role C:  " + roleID + "  manager C  " + managerID);
-                                    console.table(rows);
-                                    console.log(rows.affectedRows);
+                                    console.log(rows.affectedRows + ' added!\n');
+                                    init();
                                 })
                                 .catch(err => {
                                     console.log(err);
 
                                 })
-                           //     .then(() => connection.end());
                         })
-                    
-                    
+
+
                 })
         });
 
 };
-
+//-------------------------------------------Update Employee Role---------------------------------------//
 updateEmployeeRole = () => {
+    const { init } = require('../server');
     let arrayFirst = [];
     let arrayLast = [];
     let arrayRole = [];
     let arrayCombined = [];
     var roleID;
-
+// capture employee first name and last
     connection.promise().query('SELECT first_name,last_name FROM employee')
         .then(([rows, fields]) => {
             rows.forEach(element => arrayFirst.push(element.first_name));
             rows.forEach(element => arrayLast.push(element.last_name));
             rows.forEach(element => arrayCombined.push(element.first_name + ' ' + element.last_name));
-            console.log("arrrayy first:   " + arrayCombined);
+
+
         })
         .catch(console.log)
         .then(() => {
+            // capture role title
             connection.promise().query('SELECT title FROM role')
                 .then(([rows, fields]) => {
                     rows.forEach(element => arrayRole.push(element.title))
-                    console.log("roleee first:   " + arrayRole);
+
                 })
                 .catch(console.log)
                 .then(() => {
@@ -304,11 +303,10 @@ updateEmployeeRole = () => {
                     ])
 
                         .then(choice => {
-                            console.log("dddee: " + choice);
+                            // find corresponding role id based on selection of role
                             connection.promise().query('SELECT id FROM role WHERE ?', { "title": choice.role })
                                 .then(([rows, fields]) => {
                                     roleID = rows[0].id;
-                                    console.log("role ID  " + roleID);
                                 })
                                 .catch(err => {
                                     console.log(err);
@@ -316,10 +314,12 @@ updateEmployeeRole = () => {
                                 .then(() => {
                                     let choiceNew = choice.employee;
                                     let choiceNewArray = choiceNew.split(' ');
-                                    connection.query('UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?',[roleID,choiceNewArray[0],choiceNewArray[1]], function (err, res) {
+                                    // update employee information
+                                    connection.query('UPDATE employee SET role_id = ? WHERE first_name = ? AND last_name = ?', [roleID, choiceNewArray[0], choiceNewArray[1]], function (err, res) {
                                         if (err) throw err;
-                                        console.log(res.affectedRows + ' products updated!\n');
-                                   //     connection.end();
+                                        console.log(res.affectedRows + ' employee updated!\n');
+                                        init();
+
                                     })
 
                                 })
@@ -332,6 +332,101 @@ updateEmployeeRole = () => {
         });
 };
 
+//-------------------------------------------Update Employee;s Manager--------------------------------------//
+updateManager = () => {
+    const { init } = require('../server');
+    // get first name and last name employee list
+    connection.promise().query('SELECT first_name,last_name,id FROM employee',)
+        .then(([rows, fields]) => {
+            // if (err) throw err;
+            let arrayFirst = [];
+            let arrayLast = [];
+            let arrayCombined = [];
+            let arrayManagerId = [];
+            rows.forEach(element => arrayManagerId.push(element.id));
+            rows.forEach(element => arrayFirst.push(element.first_name));
+            rows.forEach(element => arrayLast.push(element.last_name));
+            rows.forEach(element => arrayCombined.push(element.first_name + ' ' + element.last_name));
+            return ([arrayFirst, arrayLast, arrayCombined, arrayManagerId]);
+        })
+        .catch(err => {
+            console.log(err);
+
+        })
+        .then(([aF, aL, aC, aM]) => {
+            inquirer;
+            // select employee whose manager needs to be updated
+            return inquirer.prompt([
+                {
+                    type: 'list',
+                    name: 'employee',
+                    message: 'Select Employee',
+                    choices: aC
+                }
+            ])
+                .then((choices) => {
+                    mid = aC.findIndex((element) => element == choices.employee);
+                    console.log("mid " + mid);
+                    let choiceNew = choices.employee;
+                    let choiceNewArray = choiceNew.split(' ');
+                    // create choice for manager list. Excludes the selected employee and any employee who he or she report to
+                    connection.promise().query('SELECT first_name,last_name FROM employee WHERE first_name != ? && last_name != ? && (manager_id != ?|| manager_id IS NULL)', [choiceNewArray[0], choiceNewArray[1], aM[mid]])
+                        .then(([rows, fields]) => {
+                            // if (err) throw err;
+                            let arrayFirst = [];
+                            let arrayLast = [];
+                            let arrayCombined = [];
+                            rows.forEach(element => arrayFirst.push(element.first_name));
+                            rows.forEach(element => arrayLast.push(element.last_name));
+                            rows.forEach(element => arrayCombined.push(element.first_name + ' ' + element.last_name));
+                            arrayCombined.push('No Manager');
+                            return ([choiceNewArray[0], choiceNewArray[1], arrayCombined, aM[mid]]);
+                        })
+                        .catch(err => {
+                            console.log(err);
+
+                        })
+                        .then(([fName, lName, aC, mid]) => {
+
+                            inquirer;
+                            return inquirer.prompt([
+                                {
+                                    type: 'list',
+                                    name: 'manager',
+                                    message: 'Select Manager',
+                                    choices: aC
+                                }
+                            ])
+                                .then((choices) => {
+
+                                    let choiceNew = choices.manager;
+                                    let choiceNewArray = choiceNew.split(' ')
+                                    // get the employee if of the manager
+                                    connection.promise().query('SELECT id FROM employee WHERE first_name = ? AND last_name = ?', [choiceNewArray[0], choiceNewArray[1]])
+                                        .then(([rows, fields]) => {
+                                            return (rows[0].id);
+                                        })
+                                        .catch(err => {
+                                            console.log(err);
+                                        })
+                                        .then((manId) => {
+                                            //update employee with manager id
+                                            connection.query('UPDATE employee SET manager_id = ? WHERE first_name = ? AND last_name = ?', [manId, fName, lName], function (err, res) {
+                                                if (err) throw err;
+                                                console.log(res.affectedRows + ' manager updated!\n');
+                                                init();
+                                            })
+                                        });
+
+
+                                });
+                        });
+                });
+
+        });
+
+};
+
 module.exports = {
     viewDepartments,
     viewRoles,
@@ -339,5 +434,6 @@ module.exports = {
     addDepartment,
     addRole,
     addEmployee,
-    updateEmployeeRole
+    updateEmployeeRole,
+    updateManager
 };
