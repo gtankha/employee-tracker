@@ -1,9 +1,7 @@
 
 const db = require('./db/database');
-
 const inquirer = require('inquirer'); // inquirer
-
-
+var figlet = require('figlet');
 const { viewDepartments, viewRoles, viewEmployees, addDepartment, addRole, updateEmployeeRole, updateManager } = require('./utils/queryCenter');
 const connection = require('./db/database');
 
@@ -58,7 +56,15 @@ init = () => {
 
 }
 
-init();
+figlet('Employee Tracker', function(err, data) {
+    if (err) {
+        console.log('Something went wrong...');
+        console.dir(err);
+        return;
+    }
+    console.log(data)
+    init();
+});
 
 module.exports = {
     init

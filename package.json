@@ -4,7 +4,9 @@
   "description": "This is the repo for the UC Berkeley Blended-Online Fullstack class starting July 15th, 2020",
   "main": "server.js",
   "dependencies": {
+    "ascii-art-table": "^1.0.1",
     "console.table": "^0.10.0",
+    "figlet": "^1.5.0",
     "inquirer": "^7.3.3",
     "inquirer-recursive": "0.0.6",
     "mysql2": "^2.2.5",
