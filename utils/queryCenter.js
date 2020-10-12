@@ -16,7 +16,7 @@ viewDepartments = () => {
 //-------------------------------------------VIEW ROLES---------------------------------------//
 viewRoles = () => {
     const { init } = require('../server');
-    connection.promise().query('SELECT * FROM role ORDER BY id ASC')
+    connection.promise().query('SELECT role.id AS ID,title AS Title,department.name AS Department,salary AS Salary FROM role INNER JOIN department ON department.id = department_id ORDER BY id ASC;')
         .then(([rows, fields]) => {
             console.table(rows);
             init();
@@ -28,7 +28,7 @@ viewRoles = () => {
 
 viewEmployees = () => {
     const { init } = require('../server');
-    connection.promise().query('SELECT employee.id,first_name,last_name,title,department_id,salary,manager_id FROM employee INNER JOIN role ON role.id = role_id ORDER BY id ASC')
+    connection.promise().query('SELECT e.id,e.first_name,e.last_name,title,department.name,salary,CONCAT(m.first_name,m.last_name) manager FROM employee e LEFT JOIN employee m ON (m.id = e.manager_id) INNER JOIN role ON role.id = e.role_id INNER JOIN department ON department.id = department_id ORDER BY e.id;')
         .then(([rows, fields]) => {
             console.table(rows);
             init();
@@ -407,7 +407,8 @@ updateManager = () => {
                                             return (rows[0].id);
                                         })
                                         .catch(err => {
-                                            console.log(err);
+                                            return null;
+                                           // console.log(err);
                                         })
                                         .then((manId) => {
                                             //update employee with manager id
