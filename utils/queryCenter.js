@@ -28,7 +28,7 @@ viewRoles = () => {
 
 viewEmployees = () => {
     const { init } = require('../server');
-    connection.promise().query('SELECT e.id,e.first_name,e.last_name,title,department.name,salary,CONCAT(m.first_name,m.last_name) manager FROM employee e LEFT JOIN employee m ON (m.id = e.manager_id) INNER JOIN role ON role.id = e.role_id INNER JOIN department ON department.id = department_id ORDER BY e.id;')
+    connection.promise().query('SELECT e.id,e.first_name,e.last_name,title AS Role,department.name AS Department,salary AS Salary,CONCAT(m.first_name,m.last_name) Manager FROM employee e LEFT JOIN employee m ON (m.id = e.manager_id) INNER JOIN role ON role.id = e.role_id INNER JOIN department ON department.id = department_id ORDER BY e.id;')
         .then(([rows, fields]) => {
             console.table(rows);
             init();
