@@ -9,7 +9,7 @@ INSERT INTO
 VALUES
   ("Scientist", 30000, 1),
   ("Explorer",25000,1),
-  ("Business Development", 40000, 2);
+  ("Business Development Manager", 40000, 2);
 
 INSERT INTO
   employee (first_name, last_name, role_id, manager_id)

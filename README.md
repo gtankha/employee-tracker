@@ -50,7 +50,9 @@
   
   GitHub Username: gtankha
 
-  Walkthrough Video: 
+  GitHub: https://github.com/gtankha/employee-tracker
+
+  Walkthrough Video: https://drive.google.com/file/d/1LvyIcrwbeX2h71uxecvNAhbyfzvBCoQV/view
   
   In case of any questions, please reach out to the following contact email: gtankha@gmail.com
 
