@@ -20,7 +20,7 @@
   <a name="installation"></a> 
   ## 2. Installation
 
- Please go ahead and clone or download the repository provided in the link (please see under questions).  A package.json file will be available within the Develop directory. This will make it easy to manage and install the required packages for this program to work. . “npm install” command from the terminal will trigger the installation of all modules that are listed as dependencies in package.json.
+ Please go ahead and clone or download the repository provided in the link (please see under questions).  A package.json file will be available . This will make it easy to manage and install the required packages for this program to work. . “npm install” command from the terminal will trigger the installation of all modules that are listed as dependencies in package.json.
 
   <a name="usage"></a> 
   ## 3. Usage
